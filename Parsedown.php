@@ -56,6 +56,15 @@ class Parsedown
     # Setters
     #
 
+    function setBaseUrl($baseUrl)
+    {
+        $this->baseUrl = $baseUrl;
+
+        return $this;
+    }
+
+    protected $baseUrl;
+
     function setBreaksEnabled($breaksEnabled)
     {
         $this->breaksEnabled = $breaksEnabled;
@@ -1418,8 +1427,12 @@ class Parsedown
             return;
         }
 
-        if (preg_match('/^[(]\s*+((?:[^ ()]++|[(][^ )]+[)])++)(?:[ ]+("[^"]*+"|\'[^\']*+\'))?\s*+[)]/', $remainder, $matches))
-        {
+        if (preg_match('/^[(]\s*+((?:[^ ()]++|[(][^ )]+[)])++)(?:[ ]+("[^"]*+"|\'[^\']*+\'))?\s*+[)]/', $remainder, $matches)) {
+
+            // Is it a relative url?
+            if (!empty($this->baseUrl) && preg_match('/^[^\/]+\/[^\/].*$|^\/[^\/].*$/',$matches[1])) {
+                $Element['attributes']['href'] = $this->baseUrl . $matches[1];
+            } else {
             $Element['attributes']['href'] = $matches[1];
 
             if (isset($matches[2]))
